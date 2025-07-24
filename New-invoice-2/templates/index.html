@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dey Bari Utility Invoice Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Dey Bari Utility Invoice Generator</h2>
+
+        <form action="/" method="post">
+            <!-- Search Bar for Predefined Users -->
+            <label for="selected_user">Select User:</label>
+            <select name="selected_user" id="selected_user" required>
+                <option value="" disabled selected>Select a User</option>
+                {% for user, data in users.items() %}
+                    <option value="{{ user }}">{{ user }}</option>
+                {% endfor %}
+            </select>
+            <br><br>
+
+            <div id="custom-user-fields" style="display:none;">
+                <label for="name">User Name:</label>
+                <input type="text" name="name"><br><br>
+
+                <label for="consumer_id">Consumer ID:</label>
+                <input type="text" name="consumer_id"><br><br>
+
+                <label for="meter_number">Meter Number:</label>
+                <input type="text" name="meter_number"><br><br>
+            </div>
+
+            <label for="billing_month">Billing Month:</label>
+            <input type="text" name="billing_month" required><br><br>
+
+            <label for="gas_bill">Gas Bill (৳):</label>
+            <input type="number" step="0.01" name="gas_bill" required><br><br>
+
+            <label for="electricity_bill">Electricity Bill (৳):</label>
+            <input type="number" step="0.01" name="electricity_bill" required><br><br>
+
+            <label for="motor_bill">Motor Bill (৳):</label>
+            <input type="number" step="0.01" name="motor_bill" required><br><br>
+
+            <label for="bkash_charge">Bkash Charge (৳):</label>
+            <input type="number" step="0.01" name="bkash_charge" required><br><br>
+
+            <label for="bkash_transaction_id">Bkash Transaction ID:</label>
+            <input type="text" name="bkash_transaction_id" required><br><br>
+
+            <label for="total_paid">Total Paid (৳):</label>
+            <input type="number" step="0.01" name="total_paid" required><br><br>
+
+            <button type="submit">Generate Invoice</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('selected_user').addEventListener('change', function() {
+            var customFields = document.getElementById('custom-user-fields');
+            if (this.value === "") {
+                customFields.style.display = "block"; // Show fields for custom user input
+            } else {
+                customFields.style.display = "none"; // Hide fields for custom user input
+            }
+        });
+    </script>
+</body>
+</html>

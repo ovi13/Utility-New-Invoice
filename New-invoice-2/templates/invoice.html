@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice for {{ name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Invoice for {{ name }}</h2>
+        <p><strong>Billing Date: </strong>{{ billing_date }}</p>
+        <p><strong>Billing Time: </strong>{{ billing_time }}</p>
+
+        <h3>Customer Information</h3>
+        <p><strong>Consumer ID: </strong>{{ consumer_id }}</p>
+        <p><strong>Meter Number: </strong>{{ meter_number or 'Not Available' }}</p>
+
+        <h3>Bill Breakdown</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Amount (৳)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Gas Bill</td><td>{{ gas_bill }}</td></tr>
+                <tr><td>Electricity Bill</td><td>{{ electricity_bill }}</td></tr>
+                <tr><td>Motor Bill</td><td>{{ motor_bill }}</td></tr>
+                <tr><td>Bkash Charge</td><td>{{ bkash_charge }}</td></tr>
+                <tr><td><strong>Total Bill</strong></td><td><strong>{{ total_bill }}</strong></td></tr>
+                <tr><td>Amount Paid</td><td>{{ total_paid }}</td></tr>
+                <tr><td><strong>{{ balance_status }}</strong></td><td></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Bkash Transaction Details</h3>
+        <p>Transaction ID: {{ bkash_transaction_id }}</p>
+
+        <h3>Special Note</h3>
+        <p>{{ special_note }}</p> <!-- Fixed Special Note -->
+
+        <button onclick="window.print()">Print Invoice</button>
+    </div>
+</body>
+</html>
