@@ -3,69 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dey Bari Utility Invoice Generator</title>
+    <title>Utility Bill Generator</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        // Function to create and return a new transaction field group HTML string
+        function createTransactionFieldHtml(sectionId) {
+            return `
+                <div class="transaction-group">
+                    <label>Select Transaction ID Type:</label>
+                    <select name="transaction_types_${sectionId}[]" required>
+                        <option value="">Select Transaction ID Type</option>
+                        <option value="Motor Bill's Transaction ID">Motor Bill's Transaction ID</option>
+                        <option value="Gas Bill's Transaction ID">Gas Bill's Transaction ID</option>
+                        <option value="Electricity Bill's Transaction ID">Electricity Bill's Transaction ID</option>
+                        <option value="Other Transaction ID">Other Transaction ID</option>
+                    </select><br><br>
+                    <input type="text" name="transaction_ids_${sectionId}[]" placeholder="Enter Transaction ID" required><br><br>
+                </div>
+            `;
+        }
+
+        function showBillFields() {
+            var userSelect = document.getElementById("user").value;
+
+            // Hide all fields initially
+            document.getElementById("motorBillFields").style.display = "none";
+            document.getElementById("gasBillFields").style.display = "none";
+            document.getElementById("customUserFields").style.display = "none";
+            document.getElementById("individualUserFields").style.display = "none";
+
+            // Clear and add initial transaction fields for the active section
+            // This ensures only one group is present initially for each section
+            if (userSelect === "Motor Bill") {
+                document.getElementById("motorBillFields").style.display = "block";
+                resetTransactionFields('motor'); // Reset and add initial
+                resetRequiredAttributes('motor');
+            } else if (userSelect === "Gas Bill") {
+                document.getElementById("gasBillFields").style.display = "block";
+                resetTransactionFields('gas'); // Reset and add initial
+                resetRequiredAttributes('gas');
+            } else if (userSelect === "Enter Custom Data") {
+                document.getElementById("customUserFields").style.display = "block";
+                resetTransactionFields('custom'); // Reset and add initial
+                resetRequiredAttributes('custom');
+            } else if (userSelect !== "") { // For any other predefined user
+                document.getElementById("individualUserFields").style.display = "block";
+                resetTransactionFields('individual'); // Reset and add initial
+                resetRequiredAttributes('individual');
+            }
+        }
+
+        // Function to add a new set of transaction type/ID fields
+        function addTransactionField(sectionId) {
+            const container = document.getElementById("transactionFieldsContainer_" + sectionId);
+            if (container) {
+                const newFieldGroup = document.createElement("div");
+                newFieldGroup.innerHTML = createTransactionFieldHtml(sectionId);
+                container.appendChild(newFieldGroup);
+            }
+        }
+
+        // Function to reset and add the first transaction field group
+        function resetTransactionFields(sectionId) {
+            const container = document.getElementById("transactionFieldsContainer_" + sectionId);
+            if (container) {
+                container.innerHTML = ''; // Clear existing fields
+                const initialFieldGroup = document.createElement("div");
+                initialFieldGroup.innerHTML = createTransactionFieldHtml(sectionId);
+                container.appendChild(initialFieldGroup);
+            }
+        }
+
+        // Function to manage 'required' attributes based on displayed fields
+        function resetRequiredAttributes(activeSectionId) {
+            const sections = ['motor', 'gas', 'custom', 'individual'];
+            sections.forEach(sectionId => {
+                const sectionDiv = document.getElementById(sectionId + 'BillFields');
+                if (!sectionDiv) return;
+
+                const inputs = sectionDiv.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    // Only set required for fields in the currently active section
+                    if (sectionId === activeSectionId) {
+                        // Check if the input is one of the main bill/charge/paid inputs
+                        if (input.name.includes('bill') || input.name.includes('charge') || input.name.includes('paid')) {
+                            input.setAttribute('required', 'required');
+                        }
+                        // Specific for custom user fields that are always required if section is active
+                        if (activeSectionId === 'custom' && (input.name === 'name_custom' || input.name === 'consumer_id_custom')) {
+                            input.setAttribute('required', 'required');
+                        }
+                        // For dynamically added transaction fields, 'required' is already in their HTML
+                    } else {
+                        // Remove 'required' for fields in inactive sections
+                        input.removeAttribute('required');
+                    }
+                });
+            });
+            // Ensure billing month is always required
+            const billingMonthInput = document.getElementById("billing_month");
+            if (billingMonthInput) {
+                billingMonthInput.setAttribute('required', 'required');
+            }
+        }
+
+        // Initial call on page load to hide all and set default requirements
+        document.addEventListener('DOMContentLoaded', () => {
+            showBillFields(); // This will hide all sections initially
+            // Set 'required' for billing month which is always visible
+            const billingMonthInput = document.getElementById("billing_month");
+            if (billingMonthInput) {
+                billingMonthInput.setAttribute('required', 'required');
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="container">
-        <h2>Dey Bari Utility Invoice Generator</h2>
+        <h1>Utility Bill Generator</h1>
+        <form action="/generate_invoice" method="post">
+            <label for="user">Select Bill Type or User:</label>
+            <select id="user" name="user" onchange="showBillFields()" required>
+                <option value="">--Select Bill Type or User--</option>
+                <option value="Motor Bill">Motor Bill</option>
+                <option value="Gas Bill">Gas Bill</option>
+                <option value="Mridul Kanti Dey">Mridul Kanti Dey</option>
+                <option value="Rita Dey">Rita Dey</option>
+                <option value="Angshu Debray">Angshu Debray</option>
+                <option value="Pijush Kanti Dey">Pijush Kanti Dey</option>
+                <option value="Enter Custom Data">Enter Custom Data</option>
+            </select><br><br>
 
-        <form action="/" method="post">
-            <!-- Search Bar for Predefined Users -->
-            <label for="selected_user">Select User:</label>
-            <select name="selected_user" id="selected_user" required>
-                <option value="" disabled selected>Select a User</option>
-                {% for user, data in users.items() %}
-                    <option value="{{ user }}">{{ user }}</option>
-                {% endfor %}
-            </select>
-            <br><br>
+            <label for="billing_month">Enter Billing Month:</label>
+            <input type="text" id="billing_month" name="billing_month" required><br><br>
 
-            <div id="custom-user-fields" style="display:none;">
-                <label for="name">User Name:</label>
-                <input type="text" name="name"><br><br>
+            <div id="motorBillFields" style="display: none;">
+                <h3>Motor Bill Details</h3>
+                <label for="motor_bill_motor">Enter Motor Bill (Total):</label>
+                <input type="number" id="motor_bill_motor" name="motor_bill_motor" min="0" step="0.01"><br><br>
+                <label for="bkash_charge_motor">Enter Bkash Charge (৳):</label>
+                <input type="number" id="bkash_charge_motor" name="bkash_charge_motor" min="0" step="0.01"><br><br>
+                <label for="total_paid_motor">Enter Total Paid (৳):</label>
+                <input type="number" id="total_paid_motor" name="total_paid_motor" min="0" step="0.01"><br><br>
 
-                <label for="consumer_id">Consumer ID:</label>
-                <input type="text" name="consumer_id"><br><br>
-
-                <label for="meter_number">Meter Number:</label>
-                <input type="text" name="meter_number"><br><br>
+                <h4>Transaction Details</h4>
+                <div id="transactionFieldsContainer_motor">
+                    </div>
+                <button type="button" onclick="addTransactionField('motor')">Add Another Transaction</button><br><br>
             </div>
 
-            <label for="billing_month">Billing Month:</label>
-            <input type="text" name="billing_month" required><br><br>
+            <div id="gasBillFields" style="display: none;">
+                <h3>Gas Bill Details</h3>
+                <label for="gas_bill_gas">Enter Gas Bill (Total):</label>
+                <input type="number" id="gas_bill_gas" name="gas_bill_gas" value="6480" readonly><br><br>
+                <label for="bkash_charge_gas">Enter Bkash Charge (৳):</label>
+                <input type="number" id="bkash_charge_gas" name="bkash_charge_gas" min="0" step="0.01"><br><br>
+                <label for="total_paid_gas">Enter Total Paid (৳):</label>
+                <input type="number" id="total_paid_gas" name="total_paid_gas" min="0" step="0.01"><br><br>
 
-            <label for="gas_bill">Gas Bill (৳):</label>
-            <input type="number" step="0.01" name="gas_bill" required><br><br>
+                <h4>Transaction Details</h4>
+                <div id="transactionFieldsContainer_gas">
+                    </div>
+                <button type="button" onclick="addTransactionField('gas')">Add Another Transaction</button><br><br>
+            </div>
 
-            <label for="electricity_bill">Electricity Bill (৳):</label>
-            <input type="number" step="0.01" name="electricity_bill" required><br><br>
+            <div id="customUserFields" style="display: none;">
+                <h3>Custom User Details</h3>
+                <label for="name_custom">Enter Name:</label>
+                <input type="text" id="name_custom" name="name_custom"><br><br>
+                <label for="consumer_id_custom">Enter Consumer ID:</label>
+                <input type="text" id="consumer_id_custom" name="consumer_id_custom"><br><br>
+                <label for="meter_number_custom">Enter Meter Number:</label>
+                <input type="text" id="meter_number_custom" name="meter_number_custom"><br><br>
+                <label for="electricity_bill_custom">Enter Electricity Bill (Total):</label>
+                <input type="number" id="electricity_bill_custom" name="electricity_bill_custom" min="0" step="0.01"><br><br>
+                <label for="motor_bill_custom">Enter Motor Bill (Total):</label>
+                <input type="number" id="motor_bill_custom" name="motor_bill_custom" min="0" step="0.01"><br><br>
+                <label for="bkash_charge_custom">Enter Bkash Charge (৳):</label>
+                <input type="number" id="bkash_charge_custom" name="bkash_charge_custom" min="0" step="0.01"><br><br>
+                <label for="total_paid_custom">Enter Total Paid (৳):</label>
+                <input type="number" id="total_paid_custom" name="total_paid_custom" min="0" step="0.01"><br><br>
 
-            <label for="motor_bill">Motor Bill (৳):</label>
-            <input type="number" step="0.01" name="motor_bill" required><br><br>
+                <h4>Transaction Details</h4>
+                <div id="transactionFieldsContainer_custom">
+                    </div>
+                <button type="button" onclick="addTransactionField('custom')">Add Another Transaction</button><br><br>
+            </div>
 
-            <label for="bkash_charge">Bkash Charge (৳):</label>
-            <input type="number" step="0.01" name="bkash_charge" required><br><br>
+            <div id="individualUserFields" style="display: none;">
+                <h3>Individual User Bill Details</h3>
+                <label for="electricity_bill_individual">Enter Electricity Bill (Total):</label>
+                <input type="number" id="electricity_bill_individual" name="electricity_bill_individual" min="0" step="0.01"><br><br>
+                <label for="motor_bill_individual">Enter Motor Bill (Total):</label>
+                <input type="number" id="motor_bill_individual" name="motor_bill_individual" min="0" step="0.01"><br><br>
+                <label for="gas_bill_individual">Enter Gas Bill (Total):</label>
+                <input type="number" id="gas_bill_individual" name="gas_bill_individual" min="0" step="0.01"><br><br>
+                <label for="bkash_charge_individual">Enter Bkash Charge (৳):</label>
+                <input type="number" id="bkash_charge_individual" name="bkash_charge_individual" min="0" step="0.01"><br><br>
+                <label for="total_paid_individual">Enter Total Paid (৳):</label>
+                <input type="number" id="total_paid_individual" name="total_paid_individual" min="0" step="0.01"><br><br>
 
-            <label for="bkash_transaction_id">Bkash Transaction ID:</label>
-            <input type="text" name="bkash_transaction_id" required><br><br>
-
-            <label for="total_paid">Total Paid (৳):</label>
-            <input type="number" step="0.01" name="total_paid" required><br><br>
+                <h4>Transaction Details</h4>
+                <div id="transactionFieldsContainer_individual">
+                    </div>
+                <button type="button" onclick="addTransactionField('individual')">Add Another Transaction</button><br><br>
+            </div>
 
             <button type="submit">Generate Invoice</button>
         </form>
     </div>
-
-    <script>
-        document.getElementById('selected_user').addEventListener('change', function() {
-            var customFields = document.getElementById('custom-user-fields');
-            if (this.value === "") {
-                customFields.style.display = "block"; // Show fields for custom user input
-            } else {
-                customFields.style.display = "none"; // Hide fields for custom user input
-            }
-        });
-    </script>
 </body>
 </html>
