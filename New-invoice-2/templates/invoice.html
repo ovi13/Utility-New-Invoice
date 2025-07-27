@@ -10,12 +10,16 @@
         function downloadPDF() {
             const element = document.querySelector('.container');
             var opt = {
-                margin:       0.5, // Reduced margin
+                // --- START PDF Adjustment Changes ---
+                margin:       [0.3, 0.3, 0.3, 0.3], // Top, Left, Bottom, Right margins (reduced for more content space)
                 filename:     'invoice.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2 },
-                // Use a slightly taller custom format to prevent page breaks
-                jsPDF:        { unit: 'in', format: [8.27, 12.0], orientation: 'portrait' } // A4 width (8.27 in), slightly taller height (e.g., 12.0 in)
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' } // Using 'letter' format, often better than A4 for fitting
+                // You can experiment with custom formats if 'letter' is not enough:
+                // jsPDF:     { unit: 'in', format: [8.5, 12.0], orientation: 'portrait' } // Slightly taller than letter
+                // jsPDF:     { unit: 'in', format: [8.5, 12.5], orientation: 'portrait' } // Even taller
+                // --- END PDF Adjustment Changes ---
             };
             html2pdf().from(element).set(opt).save();
         }
@@ -101,8 +105,7 @@
         <p><strong>Balance:</strong> ৳{{ "%.2f"|format(balance|float) }}</p>
         {% endif %}
 
-
-        {% if combined_transactions %}
+         {% if combined_transactions %}
         <h3>Transaction Details:</h3>
             {% for trans in combined_transactions %}
             <div class="bill-item">
@@ -114,8 +117,10 @@
 
         <p>This is a computer programming generated invoice, does not require any signature.</p>
 
-        <button onclick="window.print()">Print Invoice</button>
-        <button onclick="downloadPDF()">Download PDF</button>
+        <div class="button-container">
+            <button onclick="window.print()">Print Invoice</button>
+            <button onclick="downloadPDF()">Download PDF</button>
+        </div>
     </div>
 </body>
 </html>
