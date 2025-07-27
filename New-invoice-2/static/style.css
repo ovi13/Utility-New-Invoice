@@ -1,9 +1,16 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f7fc;
+    background-color: #f4f7fc; /* Fallback color */
     color: #333;
     margin: 0;
     padding: 0;
+    /* --- START Fancy Background Changes --- */
+    /* Multiple backgrounds: pattern first, then gradient */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Cpath d='M5 0L6.18 3.63L10 3.82L7.09 6.18L8.18 10L5 7.73L1.82 10L2.91 6.18L0 3.82L3.82 3.63L5 0Z' fill='%23ccc' opacity='0.2'/%3E%3C/svg%3E"), linear-gradient(to right, #ece9e6, #ffffff);
+    background-repeat: repeat, no-repeat; /* Repeat the pattern, don't repeat the gradient */
+    background-position: 0 0, center center; /* Position for pattern, then for gradient */
+    background-size: auto, cover; /* Auto size for pattern, cover for gradient */
+    /* --- END Fancy Background Changes --- */
 }
 
 .container {
@@ -22,10 +29,27 @@ h1 {
     margin-bottom: 20px;
 }
 
-h2, h3, h4 { /* Added h4 for transaction details heading */
+h2 {
     color: #333;
     margin-top: 25px;
     margin-bottom: 15px;
+    text-align: center; /* <<< CHANGED: Centering for "Bill Breakdown" */
+}
+
+h3 { /* Target h3 for "Transaction Details" heading */
+    color: #333;
+    text-align: center; /* Center the text */
+    margin-left: auto; /* Remove default margin for centering */
+    margin-right: auto; /* Remove default margin for centering */
+    width: fit-content; /* Make the element only as wide as its content */
+    margin-top: 25px; /* Keep consistent top margin */
+    margin-bottom: 15px; /* Keep consistent bottom margin */
+}
+
+h4 { /* For other smaller headings if used */
+    color: #333;
+    margin-top: 20px;
+    margin-bottom: 10px;
 }
 
 p {
@@ -35,12 +59,16 @@ p {
 .bill-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     font-size: 1.1em;
     padding: 10px;
     background-color: #f9f9f9;
     border-radius: 5px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 8px; /* Slightly reduced gap */
+    margin-bottom: 8px;
+    width: 80%; /* Adjust width to make them narrower */
+    margin-left: auto; /* Center the narrower bill-item */
+    margin-right: auto; /* Center the narrower bill-item */
 }
 
 .bill-label {
@@ -84,67 +112,127 @@ form select {
     margin-bottom: 8px;
 }
 
+/* Centering for the special note paragraph */
+.container p:last-of-type { /* This targets the last paragraph in the .container, which is your "special note" */
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%; /* Example width, adjust as needed */
+    margin-top: 25px; /* Add some space above it */
+    margin-bottom: 25px; /* Add space below it, before buttons */
+}
 
+
+/* --- START Fancy Button Styles --- */
+
+/* For buttons in forms (Generate Invoice) and button container (Print/Download) */
 button {
-    background-color: #4CAF50;
     color: white;
-    padding: 10px 20px;
+    padding: 12px 25px; /* Slightly more padding for a better feel */
     border: none;
-    border-radius: 5px;
+    border-radius: 30px; /* More rounded corners for a modern look */
     cursor: pointer;
-    font-size: 1.2em;
-    margin-top: 20px;
-    margin-right: 10px; /* Space between buttons */
-    transition: background-color 0.3s;
+    font-size: 1.1em; /* Slightly smaller font to fit well */
+    font-weight: bold; /* Make text bolder */
+    letter-spacing: 0.5px; /* Slight letter spacing */
+    transition: all 0.3s ease; /* Smooth transitions for all properties */
+
+    background-image: linear-gradient(to right, #4CAF50 0%, #63B266  51%, #4CAF50  100%); /* Green gradient */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Soft shadow */
+    background-size: 200% auto; /* For moving gradient effect */
+
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px; /* More space above */
+    margin-bottom: 20px; /* Space below */
+    width: fit-content;
 }
 
+/* Hover effects for fancy buttons */
 button:hover {
-    background-color: #45a049;
+    background-position: right center; /* Move gradient on hover */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); /* Deeper shadow on hover */
+    transform: translateY(-2px); /* Slight lift effect */
 }
+
+button:active {
+    transform: translateY(0); /* Press down effect */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Smaller shadow when pressed */
+}
+
+
+/* For button containers (Print/Download buttons are expected to be in this) */
+.button-container {
+    text-align: center; /* Center buttons horizontally within their container */
+    margin-top: 30px; /* Consistent top margin */
+    margin-bottom: 20px; /* Consistent bottom margin */
+}
+
+.button-container button {
+    display: inline-block; /* Make them inline-block to sit next to each other */
+    margin: 0 10px; /* More space between buttons */
+    /* Override block display and auto margins from general button rule */
+    margin-left: 10px; /* Ensure specific margin */
+    margin-right: 10px; /* Ensure specific margin */
+}
+
+/* --- END Fancy Button Styles --- */
+
 
 /* Print Specific Styles */
 @media print {
     body {
         margin: 0;
         padding: 0;
-        font-size: 9.5pt; /* Smaller font for print/PDF */
+        font-size: 8.5pt; /* <<< CHANGED: Slightly smaller font for entire body in print */
+        /* Remove fancy background for print */
+        background-image: none !important;
+        background: none !important;
+        background-color: white !important;
     }
     .container {
         width: 100%;
         margin: 0;
-        padding: 10mm; /* Reduced padding for print */
+        padding: 5mm; /* <<< CHANGED: Even less padding for the container in print */
         box-shadow: none;
         border-radius: 0;
     }
     h1 {
-        font-size: 1.8em;
-        margin-bottom: 15px;
-    }
-    h2, h3, h4 {
-        font-size: 1.2em;
-        margin-top: 15px;
+        font-size: 1.5em; /* <<< CHANGED: Smaller h1 */
         margin-bottom: 10px;
     }
-    p, .bill-item {
-        font-size: 0.9em;
+    h2, h3, h4 {
+        font-size: 1em; /* <<< CHANGED: Smaller h2, h3, h4 */
+        margin-top: 10px;
         margin-bottom: 5px;
     }
+    p, .bill-item {
+        font-size: 0.8em; /* <<< CHANGED: Smaller text for paragraphs and bill items */
+        margin-bottom: 3px; /* <<< CHANGED: Reduce space between items */
+    }
     .bill-item {
-        padding: 5px 0; /* Less padding for print items */
+        padding: 3px 0; /* <<< CHANGED: Less padding for print items */
         background-color: transparent; /* No background color for print */
         box-shadow: none;
         border-bottom: 1px dashed #ccc; /* Subtle separator */
+        width: 100%; /* Take full width for print */
+        margin-left: 0;
+        margin-right: 0;
+        justify-content: space-between; /* Keeps label and value separate */
     }
     .bill-item:last-of-type {
         border-bottom: none;
     }
-    button {
-        display: none; /* Hide buttons when printing */
+    .container p:last-of-type { /* For the special note in print */
+        text-align: center;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 15px; /* Adjust print margin */
+        margin-bottom: 15px; /* Adjust print margin */
     }
-
-    /* Further reduce margins/padding if elements are still too spaced */
-    .container p, .container h2, .container h3, .container h4 {
-        margin-left: 5mm;
-        margin-right: 5mm;
+    .button-container { /* Hide the button container in print */
+        display: none;
     }
 }
